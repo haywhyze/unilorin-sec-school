@@ -5,9 +5,6 @@ node_modules/
 .next/
 out/
 
-# payload
-src/app/(payload)/admin/importMap.js
-
 # environment
 .env
 .env.local
