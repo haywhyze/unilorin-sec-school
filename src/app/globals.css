@@ -1,0 +1,274 @@
+@import 'tailwindcss';
+
+/* ═══════════════════════════════════════════════════════════════
+   USS DESIGN SYSTEM — Purple/White/Gold/Red from school identity
+   ═══════════════════════════════════════════════════════════════ */
+
+@theme {
+  /* ── Purple (Primary — from school uniform) ── */
+  --color-purple-950: #2D0E42;
+  --color-purple-900: #3B1257;
+  --color-purple-800: #4A1A6B;
+  --color-purple-700: #5C2483;
+  --color-purple-600: #6B2D8B;
+  --color-purple-500: #7B3FA0;
+  --color-purple-400: #9B64B8;
+  --color-purple-300: #B07CC8;
+  --color-purple-200: #D0AADF;
+  --color-purple-100: #E8D5F0;
+  --color-purple-50: #F5EDF9;
+
+  /* ── Gold (Secondary — from logo ribbons/torch) ── */
+  --color-gold-700: #A07A10;
+  --color-gold-600: #B8900F;
+  --color-gold-500: #D4A017;
+  --color-gold-400: #E6B83A;
+  --color-gold-300: #F0D06A;
+  --color-gold-200: #F7E4A0;
+  --color-gold-100: #FBF0CC;
+  --color-gold-50: #FEFAED;
+
+  /* ── Red (Tertiary — from logo outlines) ── */
+  --color-uss-red-700: #9B2C20;
+  --color-uss-red-600: #C0392B;
+  --color-uss-red-500: #D94435;
+  --color-uss-red-400: #E74C3C;
+  --color-uss-red-300: #F07060;
+
+  /* ── Neutral ── */
+  --color-uss-dark: #1A1A2E;
+  --color-uss-body: #2C2C40;
+  --color-uss-muted: #6B6B80;
+  --color-uss-border: #E5E5EE;
+  --color-uss-light: #F8F7FC;
+  --color-uss-cream: #FDFCFA;
+
+  /* ── Fonts ── */
+  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* ── Spacing & Sizing ── */
+  --container-max: 1280px;
+  --header-height: 80px;
+}
+
+/* ── Base ── */
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: var(--font-body);
+    color: var(--color-uss-body);
+    background: #fff;
+    line-height: 1.7;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    color: var(--color-uss-dark);
+    line-height: 1.2;
+    font-weight: 700;
+  }
+
+  h1 { font-size: clamp(2.25rem, 5vw, 3.75rem); }
+  h2 { font-size: clamp(1.75rem, 4vw, 2.75rem); }
+  h3 { font-size: clamp(1.25rem, 3vw, 1.75rem); }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  ::selection {
+    background: var(--color-purple-200);
+    color: var(--color-purple-900);
+  }
+}
+
+/* ── Animations ── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* ── Scroll Reveal (used by ScrollReveal client component) ── */
+.reveal-up,
+.reveal-left,
+.reveal-right {
+  opacity: 0;
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal-up { transform: translateY(40px); }
+.reveal-left { transform: translateX(-40px); }
+.reveal-right { transform: translateX(40px); }
+
+.reveal-up.revealed,
+.reveal-left.revealed,
+.reveal-right.revealed {
+  opacity: 1;
+  transform: translate(0);
+}
+
+/* ── Noise texture overlay for depth ── */
+.noise-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Rich text content styling ── */
+.rich-text-content h1,
+.rich-text-content h2,
+.rich-text-content h3,
+.rich-text-content h4 {
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+.rich-text-content p {
+  margin-bottom: 1em;
+}
+.rich-text-content ul,
+.rich-text-content ol {
+  margin-bottom: 1em;
+  padding-left: 1.5em;
+}
+.rich-text-content li {
+  margin-bottom: 0.25em;
+}
+.rich-text-content blockquote {
+  border-left: 4px solid var(--color-purple-300);
+  padding-left: 1em;
+  margin: 1em 0;
+  color: var(--color-uss-muted);
+  font-style: italic;
+}
+
+/* ── Button base ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  border-radius: 0.5rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.938rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: var(--color-purple-700);
+  color: #fff;
+}
+.btn-primary:hover {
+  background: var(--color-purple-600);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(92, 36, 131, 0.3);
+}
+
+.btn-gold {
+  background: var(--color-gold-500);
+  color: var(--color-uss-dark);
+}
+.btn-gold:hover {
+  background: var(--color-gold-400);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(212, 160, 23, 0.3);
+}
+
+.btn-outline {
+  background: transparent;
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+}
+.btn-outline:hover {
+  border-color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+/* ── Container utility ── */
+.container-uss {
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .container-uss {
+    padding: 0 2rem;
+  }
+}
