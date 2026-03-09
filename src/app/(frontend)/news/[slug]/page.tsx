@@ -1,112 +1,147 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import Image from 'next/image'
+import { notFound } from 'next/navigation'
+import { getPayload } from '@/lib/payload'
+import { RichText } from '@payloadcms/richtext-lexical/react'
 
-// Placeholder article data — will be replaced with CMS query
-const articlesMap: Record<string, { title: string; content: string; category: string; date: string; image: string }> = {
-  'science-olympiad-2024': {
-    title: 'USS Students Excel at National Science Olympiad',
-    content: `Our science department students brought home multiple awards at this year's National Science Olympiad, showcasing the depth of our STEM education programme.\n\nThe team of 12 students, led by Mr. Adeyemi of the Science Department, participated in categories spanning Physics, Chemistry, Biology, and Mathematics. USS placed in the top three positions in three separate categories.\n\nThis achievement reflects the school's commitment to practical science education and our recent investment in laboratory equipment. The Principal, Alhaji T.N. Durojaiye, commended the students and their teachers for the outstanding performance.\n\n"This is a testament to the quality of education we provide at USS. Our students are not just learning theory — they are applying knowledge to solve real problems," said the Principal.`,
-    category: 'News',
-    date: '2024-11-15',
-    image: 'https://staging.pixelsdigitals.com/wp-content/uploads/2024/12/DSC_0150-scaled.jpg',
-  },
-  'cultural-day-2024': {
-    title: 'Annual Cultural Day Celebration',
-    content: `Students from all departments came together to celebrate Nigeria's rich cultural heritage through performances, food, and art exhibitions.\n\nThe event featured traditional dance performances from the three major ethnic groups, a fashion show displaying traditional attire, and a food fair where students prepared local delicacies.\n\nThe Cultural Day celebration is an annual tradition at USS that promotes unity in diversity and helps students appreciate their cultural roots while embracing others.`,
-    category: 'Events',
-    date: '2024-10-20',
-    image: 'https://staging.pixelsdigitals.com/wp-content/uploads/2024/12/DSC_0263-scaled.jpg',
-  },
-}
+const CLOUDINARY_BASE = 'https://res.cloudinary.com/haywhyze/image/upload/'
 
 type PageProps = {
   params: Promise<{ slug: string }>
 }
 
+function formatSlugAsTitle(slug: string): string {
+  return slug
+    .replace(/-/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase())
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params
-  const article = articlesMap[slug]
+  const payload = await getPayload()
+  const result = await payload.find({
+    collection: 'news',
+    where: { slug: { equals: slug } },
+    limit: 1,
+  })
+  const article = result.docs[0] as any
+
+  if (article) {
+    return {
+      title: `${article.title} | Unilorin Secondary School`,
+      description: article.excerpt || `Read about ${article.title} at Unilorin Secondary School.`,
+    }
+  }
+
+  const title = formatSlugAsTitle(slug)
   return {
-    title: article?.title || 'Article Not Found',
-    description: article?.content.slice(0, 160) || '',
+    title: `${title} | Unilorin Secondary School`,
+    description: `Read about ${title} at Unilorin Secondary School.`,
   }
 }
 
 export default async function NewsArticlePage({ params }: PageProps) {
   const { slug } = await params
-  const article = articlesMap[slug]
+  const payload = await getPayload()
+  const result = await payload.find({
+    collection: 'news',
+    where: { slug: { equals: slug } },
+    limit: 1,
+    depth: 1,
+  })
+
+  const article = result.docs[0] as any
 
   if (!article) {
-    return (
-      <>
-        <section className="pt-36 pb-20 bg-gradient-to-br from-purple-900 to-purple-950">
-          <div className="container-uss relative z-10">
-            <h1 className="text-white">Article Not Found</h1>
-            <p className="text-white/70 mt-4">This article may have been moved or doesn&apos;t exist.</p>
-            <Link href="/news" className="btn btn-gold mt-6">
-              Back to News
-            </Link>
-          </div>
-        </section>
-      </>
-    )
+    notFound()
   }
+
+  const title = article.title
+  const imageUrl = article.featuredImage?.url || `${CLOUDINARY_BASE}uss-media/event-1.jpg`
+  const imageAlt = article.featuredImage?.alt || title
+  const publishedDate = article.publishedDate
+    ? new Date(article.publishedDate).toLocaleDateString('en-NG', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      })
+    : ''
 
   return (
     <>
       {/* Hero */}
-      <section className="relative pt-36 pb-20 bg-gradient-to-br from-purple-900 via-purple-800 to-purple-950 overflow-hidden">
-        <div className="absolute inset-0 opacity-15 bg-cover bg-center" style={{ backgroundImage: `url('${article.image}')` }} />
-        <div className="absolute inset-0 bg-gradient-to-t from-purple-950/80 to-transparent" />
-        <div className="container-uss relative z-10">
-          <Link href="/news" className="inline-flex items-center gap-2 text-white/60 hover:text-white mb-6 text-sm transition-colors">
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="19" y1="12" x2="5" y2="12" />
-              <polyline points="12 19 5 12 12 5" />
-            </svg>
-            Back to News
-          </Link>
-          <span className="inline-block px-3 py-1 rounded-full bg-gold-500/20 text-gold-400 text-xs font-semibold mb-4">
-            {article.category}
-          </span>
-          <h1 className="text-white max-w-3xl">{article.title}</h1>
-          <time className="text-white/50 text-sm mt-4 block">
-            {new Date(article.date).toLocaleDateString('en-NG', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })}
-          </time>
+      <section className="relative pt-36 pb-20 overflow-hidden bg-purple-950">
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(170deg, rgba(15,7,32,0.95) 0%, rgba(30,10,60,0.85) 50%, rgba(15,7,32,0.92) 100%)',
+          }}
+        />
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none" style={{ opacity: 0.05 }}>
+          <div className="absolute top-[30%] left-0 w-[35%] h-px bg-gradient-to-r from-transparent via-gold-400 to-transparent" />
         </div>
+        <div className="container-uss relative z-10">
+          <nav className="flex items-center gap-2 text-sm text-white/60 mb-6">
+            <Link href="/news" className="hover:text-white transition-colors">
+              News
+            </Link>
+            <span>/</span>
+            <span className="text-white/80 truncate max-w-xs">{title}</span>
+          </nav>
+          <h1 className="text-white max-w-3xl">{title}</h1>
+          {publishedDate && (
+            <time className="text-white/50 text-sm mt-4 block">{publishedDate}</time>
+          )}
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-cream to-transparent" />
       </section>
 
       {/* Article Body */}
-      <section className="py-16 md:py-24 bg-white">
+      <section className="py-20 md:py-28 bg-white">
         <div className="container-uss">
           <div className="max-w-3xl mx-auto">
             {/* Featured Image */}
-            <div className="rounded-2xl overflow-hidden mb-10 shadow-lg">
-              <div
-                className="h-64 md:h-96 bg-cover bg-center"
-                style={{ backgroundImage: `url('${article.image}')` }}
-              />
+            <div className="relative rounded-2xl overflow-hidden mb-12 shadow-lg">
+              <div className="relative h-64 md:h-[28rem]">
+                <Image
+                  src={imageUrl}
+                  alt={imageAlt}
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              </div>
             </div>
 
             {/* Content */}
-            <div className="rich-text-content text-lg leading-relaxed text-uss-body">
-              {article.content.split('\n\n').map((paragraph, i) => (
-                <p key={i} className="mb-6">{paragraph}</p>
-              ))}
+            {article.content ? (
+              <div className="rich-text-content text-lg leading-relaxed text-text-muted">
+                <RichText data={article.content} />
+              </div>
+            ) : (
+              <div className="rich-text-content text-lg leading-relaxed text-text-muted">
+                <p className="mb-6">{article.excerpt}</p>
+              </div>
+            )}
+
+            {/* Divider */}
+            <div className="section-divider my-12">
+              <div className="section-divider-icon" />
             </div>
 
-            {/* Share / Back */}
-            <div className="mt-12 pt-8 border-t border-uss-border flex items-center justify-between">
-              <Link href="/news" className="inline-flex items-center gap-2 text-purple-700 font-semibold hover:gap-3 transition-all">
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            {/* Back navigation */}
+            <div className="flex items-center">
+              <Link
+                href="/news"
+                className="inline-flex items-center gap-2 text-purple-700 font-semibold hover:gap-3 transition-all group"
+              >
+                <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <line x1="19" y1="12" x2="5" y2="12" />
                   <polyline points="12 19 5 12 12 5" />
                 </svg>
-                All News & Events
+                Back to News
               </Link>
             </div>
           </div>

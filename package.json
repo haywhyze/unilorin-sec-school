@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
-    "generate:types": "payload generate:types"
+    "generate:types": "payload generate:types",
+    "seed": "npx tsx src/seed.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "^3.79.0",
@@ -18,7 +19,7 @@
     "@types/node": "^25.3.3",
     "@types/react": "^19.2.14",
     "graphql": "^16.13.0",
-    "next": "^16.1.6",
+    "next": "^16.2.0-canary.85",
     "payload": "^3.79.0",
     "payload-cloudinary": "^2.3.0",
     "postcss": "^8.5.8",
@@ -29,6 +30,7 @@
     "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "cross-env": "^7.0.3"
+    "cross-env": "^7.0.3",
+    "dotenv": "^17.3.1"
   }
 }

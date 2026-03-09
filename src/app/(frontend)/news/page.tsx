@@ -1,138 +1,103 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
-import { SectionHeading } from '@/components/ui/SectionHeading'
-import { ScrollReveal } from '@/components/shared/ScrollReveal'
+import { PageHero } from '@/components/ui/PageHero'
+import { NewsListing, type NewsArticle } from '@/components/news/NewsListing'
+import { getPayload } from '@/lib/payload'
 
 export const metadata: Metadata = {
   title: 'News & Events',
   description:
-    'Stay up to date with the latest news, events, and announcements from Unilorin Secondary School.',
+    'Stay informed about everything happening at Unilorin Secondary School.',
 }
 
-// Placeholder — will be replaced with CMS query
-const allNews = [
+const CLOUDINARY_BASE = 'https://res.cloudinary.com/haywhyze/image/upload/'
+
+const placeholderNews: NewsArticle[] = [
   {
     title: 'USS Students Excel at National Science Olympiad',
-    excerpt: 'Our science department students brought home multiple awards at this year\'s National Science Olympiad.',
+    excerpt:
+      'Our science department students brought home multiple awards at this year\'s National Science Olympiad, showcasing the depth of our STEM programme.',
     category: 'news',
-    publishedDate: '2024-11-15',
-    slug: 'science-olympiad-2024',
-    image: 'https://staging.pixelsdigitals.com/wp-content/uploads/2024/12/DSC_0150-scaled.jpg',
+    publishedDate: '2025-11-15',
+    slug: 'science-olympiad-2025',
+    image: `${CLOUDINARY_BASE}uss-media/event-1.jpg`,
   },
   {
     title: 'Annual Cultural Day Celebration',
-    excerpt: 'Students from all departments came together to celebrate Nigeria\'s rich cultural heritage.',
+    excerpt:
+      'Students from all departments came together to celebrate Nigeria\'s rich cultural heritage through performances, food, and art exhibitions.',
     category: 'events',
-    publishedDate: '2024-10-20',
-    slug: 'cultural-day-2024',
-    image: 'https://staging.pixelsdigitals.com/wp-content/uploads/2024/12/DSC_0263-scaled.jpg',
+    publishedDate: '2025-10-20',
+    slug: 'cultural-day-2025',
+    image: `${CLOUDINARY_BASE}uss-media/event-2.jpg`,
   },
   {
-    title: '2025 Admission Process Now Open',
-    excerpt: 'Registration for the 2025/2026 academic session is now open. Visit our admissions page to begin.',
+    title: '2026/2027 Admission Process Now Open',
+    excerpt:
+      'Registration for the 2026/2027 academic session is now open. Visit our admissions page to learn about the application process.',
     category: 'announcements',
-    publishedDate: '2024-09-01',
-    slug: 'admissions-2025',
-    image: 'https://staging.pixelsdigitals.com/wp-content/uploads/2024/12/DSC_0142-scaled.jpg',
+    publishedDate: '2025-09-01',
+    slug: 'admissions-2026',
+    image: `${CLOUDINARY_BASE}uss-media/hero-1.webp`,
   },
   {
     title: 'Inter-House Sports Competition Results',
-    excerpt: 'Blue House emerged champions at this year\'s inter-house sports competition held at the university stadium.',
+    excerpt:
+      'Blue House emerged champions at this year\'s inter-house sports competition held at the university stadium with record-breaking performances.',
     category: 'events',
-    publishedDate: '2024-08-15',
-    slug: 'inter-house-sports-2024',
-    image: 'https://staging.pixelsdigitals.com/wp-content/uploads/2024/12/DSC_0150-scaled.jpg',
+    publishedDate: '2025-08-15',
+    slug: 'inter-house-sports-2025',
+    image: `${CLOUDINARY_BASE}uss-media/event-3.jpg`,
   },
   {
-    title: 'PTA Meeting: Building a Stronger School Community',
-    excerpt: 'The Parent-Teacher Association held its quarterly meeting to discuss plans for the upcoming academic session.',
+    title: 'PTA Meeting: Building Stronger Community',
+    excerpt:
+      'The Parent-Teacher Association held its quarterly meeting to discuss plans for the upcoming academic session and infrastructure development.',
     category: 'announcements',
-    publishedDate: '2024-07-10',
-    slug: 'pta-meeting-q3-2024',
-    image: 'https://staging.pixelsdigitals.com/wp-content/uploads/2024/12/DSC_0263-scaled.jpg',
+    publishedDate: '2025-07-10',
+    slug: 'pta-meeting-q3-2025',
+    image: `${CLOUDINARY_BASE}uss-media/about-full.webp`,
   },
   {
     title: 'New Computer Lab Inaugurated',
-    excerpt: 'A state-of-the-art computer laboratory has been inaugurated to enhance ICT education at USS.',
+    excerpt:
+      'A state-of-the-art computer laboratory has been inaugurated to enhance ICT education at USS, featuring 40 modern workstations.',
     category: 'news',
-    publishedDate: '2024-06-01',
-    slug: 'new-computer-lab-2024',
-    image: 'https://staging.pixelsdigitals.com/wp-content/uploads/2024/12/DSC_0142-scaled.jpg',
+    publishedDate: '2025-06-01',
+    slug: 'new-computer-lab-2025',
+    image: `${CLOUDINARY_BASE}uss-media/event-4.jpg`,
   },
 ]
 
-const categoryColors: Record<string, string> = {
-  news: 'bg-purple-100 text-purple-700',
-  events: 'bg-gold-100 text-gold-700',
-  announcements: 'bg-red-100 text-uss-red-600',
-}
+export default async function NewsPage() {
+  const payload = await getPayload()
+  const newsResult = await payload.find({
+    collection: 'news',
+    where: { status: { equals: 'published' } },
+    sort: '-publishedDate',
+    limit: 50,
+    depth: 1,
+  })
 
-const categoryLabels: Record<string, string> = {
-  news: 'News',
-  events: 'Events',
-  announcements: 'Announcements',
-}
+  const articles: NewsArticle[] = newsResult.docs.map((doc: any) => ({
+    title: doc.title,
+    excerpt: doc.excerpt,
+    category: doc.category,
+    publishedDate: doc.publishedDate,
+    slug: doc.slug,
+    image: doc.featuredImage?.url || `${CLOUDINARY_BASE}uss-media/event-1.jpg`,
+  }))
 
-export default function NewsPage() {
+  const newsData = articles.length > 0 ? articles : placeholderNews
+
   return (
     <>
-      {/* Hero */}
-      <section className="relative pt-36 pb-20 bg-gradient-to-br from-purple-900 via-purple-800 to-purple-950 overflow-hidden">
-        <div className="absolute bottom-0 left-10 w-64 h-64 rounded-full bg-gold-500/10 blur-3xl" />
-        <div className="container-uss relative z-10">
-          <span className="inline-flex items-center gap-2 text-sm font-semibold tracking-wider uppercase text-gold-400 mb-4">
-            <span className="w-8 h-0.5 bg-gold-500 inline-block" /> News & Events
-          </span>
-          <h1 className="text-white max-w-2xl">Latest Updates</h1>
-          <p className="text-white/70 text-lg mt-4 max-w-xl">Stay informed about everything happening at USS.</p>
-        </div>
-      </section>
+      <PageHero
+        label="News & Events"
+        title="Latest Updates"
+        description="Stay informed about everything happening at Unilorin Secondary School."
+      />
 
-      {/* News Grid */}
-      <section className="py-20 md:py-28 bg-white">
-        <div className="container-uss">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {allNews.map((article, i) => (
-              <ScrollReveal key={article.slug} delay={i * 60}>
-                <Link
-                  href={`/news/${article.slug}`}
-                  className="group block bg-white rounded-2xl overflow-hidden border border-uss-border hover:shadow-xl hover:border-purple-200 transition-all duration-300 h-full"
-                >
-                  <div className="relative h-52 overflow-hidden">
-                    <div
-                      className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
-                      style={{ backgroundImage: `url('${article.image}')` }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-                    <span
-                      className={`absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-semibold ${
-                        categoryColors[article.category] || 'bg-purple-100 text-purple-700'
-                      }`}
-                    >
-                      {categoryLabels[article.category] || article.category}
-                    </span>
-                  </div>
-                  <div className="p-6">
-                    <time className="text-xs text-uss-muted">
-                      {new Date(article.publishedDate).toLocaleDateString('en-NG', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                      })}
-                    </time>
-                    <h3 className="text-lg mt-2 mb-3 group-hover:text-purple-700 transition-colors line-clamp-2">
-                      {article.title}
-                    </h3>
-                    <p className="text-sm text-uss-muted leading-relaxed line-clamp-3">
-                      {article.excerpt}
-                    </p>
-                  </div>
-                </Link>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
+      <NewsListing articles={newsData} />
     </>
   )
 }

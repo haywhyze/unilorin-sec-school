@@ -2,19 +2,19 @@
 
 import { useEffect, useRef, type ReactNode } from 'react'
 
-type Direction = 'up' | 'left' | 'right'
+interface ScrollRevealProps {
+  children: ReactNode
+  direction?: 'up' | 'left' | 'right'
+  delay?: number
+  className?: string
+}
 
 export function ScrollReveal({
   children,
   direction = 'up',
   delay = 0,
   className = '',
-}: {
-  children: ReactNode
-  direction?: Direction
-  delay?: number
-  className?: string
-}) {
+}: ScrollRevealProps) {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -28,18 +28,15 @@ export function ScrollReveal({
           observer.unobserve(el)
         }
       },
-      { threshold: 0.1, rootMargin: '0px 0px -60px 0px' },
+      { threshold: 0.05, rootMargin: '0px 0px -30px 0px' },
     )
 
     observer.observe(el)
     return () => observer.disconnect()
   }, [delay])
 
-  const directionClass =
-    direction === 'left' ? 'reveal-left' : direction === 'right' ? 'reveal-right' : 'reveal-up'
-
   return (
-    <div ref={ref} className={`${directionClass} ${className}`}>
+    <div ref={ref} className={`reveal-${direction} ${className}`}>
       {children}
     </div>
   )

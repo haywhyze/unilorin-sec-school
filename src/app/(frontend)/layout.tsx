@@ -1,19 +1,29 @@
 import type { ReactNode } from 'react'
+import type { Metadata } from 'next'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { BackToTop } from '@/components/shared/BackToTop'
+import { getPayload } from '@/lib/payload'
 import '../globals.css'
 
-export const metadata = {
+export const metadata: Metadata = {
   title: {
     template: '%s | Unilorin Secondary School',
-    default: 'Unilorin Secondary School — Hardwork, Discipline and Progress',
+    default: 'Unilorin Secondary School — Hard work, Discipline and Progress',
   },
   description:
-    'Unilorin Secondary School (USS) is a distinguished co-educational institution affiliated with the University of Ilorin, founded in 1982 in Ilorin, Kwara State, Nigeria.',
+    'Unilorin Secondary School (USS) is a distinguished co-educational institution affiliated with the University of Ilorin, established in 1982 in Ilorin, Kwara State, Nigeria.',
 }
 
-export default function FrontendLayout({ children }: { children: ReactNode }) {
+export default async function FrontendLayout({ children }: { children: ReactNode }) {
+  let settings: any = null
+  try {
+    const payload = await getPayload()
+    settings = await payload.findGlobal({ slug: 'site-settings' })
+  } catch {
+    // Fall back to defaults if CMS is unavailable
+  }
+
   return (
     <html lang="en">
       <head>
@@ -24,10 +34,20 @@ export default function FrontendLayout({ children }: { children: ReactNode }) {
           rel="stylesheet"
         />
       </head>
-      <body className="font-body text-uss-body bg-white antialiased">
+      <body className="font-body text-text-body bg-cream antialiased">
         <Header />
         <main>{children}</main>
-        <Footer />
+        <Footer
+          settings={
+            settings
+              ? {
+                  contactPhone: settings.contactPhone,
+                  contactEmail: settings.contactEmail,
+                  address: settings.address,
+                }
+              : undefined
+          }
+        />
         <BackToTop />
       </body>
     </html>
